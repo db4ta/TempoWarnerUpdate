@@ -54,7 +54,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="karten-$(date -u +%Y-%m-%d)"
+          TAG="karten-$(date -u +%Y-%m-%d-%H%M)"  # Unique also for several builds a day
           python make_index.py "$TAG" regions > regions/index.json
           gh release create "$TAG" regions/*.sqlite regions/index.json --latest \
             --title "Karten $(date -u +%d.%m.%Y)" \
