@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: "0 2 3 * *"  # 3rd of every month, 02:00 UTC
   workflow_dispatch:
+  push:  # Also after changes to the build (e.g. the first upload)
+    branches: [main]
+    paths: [build_region.py, make_index.py, requirements.txt, .github/workflows/build.yml]
 
 permissions:
   contents: write
