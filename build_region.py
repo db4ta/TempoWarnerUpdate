@@ -184,6 +184,15 @@ def build_tiles(ways: list) -> dict:
     return tiles
 
 
+COUNTRIES = {"germany": "DE", "austria": "AT", "switzerland": "CH"}
+
+
+def country_code(region: str) -> str:
+    """Geofabrik path -> ISO code; the app uses it for the default limits by road class."""
+    parts = region.split("/")
+    return COUNTRIES.get(parts[1] if len(parts) > 1 else parts[0], "DE")
+
+
 def write_db(tiles: dict, region: str, pbf: Path) -> Path:
     OUT.mkdir(exist_ok=True)
     db_path = OUT / f"{region.split('/')[-1]}.sqlite"
@@ -200,6 +209,7 @@ def write_db(tiles: dict, region: str, pbf: Path) -> Path:
     ys = [k[0] for k in tiles]
     xs = [k[1] for k in tiles]
     meta = {"name": region.split("/")[-1], "source": f"Geofabrik {region} (OSM, ODbL)",
+            "country": country_code(region),
             "osm_date": time.strftime("%Y-%m-%d", time.localtime(pbf.stat().st_mtime)),
             "built": time.strftime("%Y-%m-%d"), "tiles": str(len(tiles)),
             "bbox": f"{min(ys) * LAT_STEP:.3f},{min(xs) * LON_STEP:.3f},{(max(ys) + 1) * LAT_STEP:.3f},{(max(xs) + 1) * LON_STEP:.3f}",

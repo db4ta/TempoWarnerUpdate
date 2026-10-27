@@ -21,20 +21,24 @@ jobs:
       fail-fast: false
       max-parallel: 6
       matrix:
-        region: [baden-wuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, hessen,
-                 mecklenburg-vorpommern, niedersachsen, nordrhein-westfalen, rheinland-pfalz, saarland,
-                 sachsen, sachsen-anhalt, schleswig-holstein, thueringen]
+        # Geofabrik paths below europe/ (DACH: German states, Austria, Switzerland)
+        region: [germany/baden-wuerttemberg, germany/bayern, germany/berlin, germany/brandenburg, germany/bremen,
+                 germany/hamburg, germany/hessen, germany/mecklenburg-vorpommern, germany/niedersachsen,
+                 germany/nordrhein-westfalen, germany/rheinland-pfalz, germany/saarland, germany/sachsen,
+                 germany/sachsen-anhalt, germany/schleswig-holstein, germany/thueringen, austria, switzerland]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - run: python build_region.py --region europe/germany/${{ matrix.region }}
+      - run: python build_region.py --region europe/${{ matrix.region }}
+      - id: n
+        run: echo "name=$(basename ${{ matrix.region }})" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.region }}
-          path: regions/${{ matrix.region }}.sqlite
+          name: ${{ steps.n.outputs.name }}
+          path: regions/${{ steps.n.outputs.name }}.sqlite
           retention-days: 3
 
   release:
@@ -54,7 +58,7 @@ jobs:
           python make_index.py "$TAG" regions > regions/index.json
           gh release create "$TAG" regions/*.sqlite regions/index.json --latest \
             --title "Karten $(date -u +%d.%m.%Y)" \
-            --notes "Alle Bundesländer, gebaut aus Geofabrik-Auszügen. Kartendaten © OpenStreetMap-Mitwirkende, ODbL."
+            --notes "Deutschland (alle Bundesländer), Österreich, Schweiz, gebaut aus Geofabrik-Auszügen. Kartendaten © OpenStreetMap-Mitwirkende, ODbL."
           # Keep the last 3 releases
           gh release list --limit 100 --json tagName --jq '.[3:][].tagName' | while read -r t; do
             gh release delete "$t" --yes --cleanup-tag

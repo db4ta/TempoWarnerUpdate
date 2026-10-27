@@ -1,6 +1,7 @@
 # TempoWarnerUpdate
 
-Offline-Straßendaten mit Tempolimits für die TempoWarner-App, je Bundesland eine SQLite-Datei.
+Offline-Straßendaten mit Tempolimits für die TempoWarner-App (DACH): je deutsches Bundesland,
+Österreich und Schweiz eine SQLite-Datei.
 Gebaut monatlich von GitHub Actions (`.github/workflows/build.yml`) aus den
 [Geofabrik](https://download.geofabrik.de/europe/germany.html)-Auszügen mit `build_region.py`
 und als Release veröffentlicht. Die App lädt `releases/latest/download/index.json` und daraus die Regionen.
