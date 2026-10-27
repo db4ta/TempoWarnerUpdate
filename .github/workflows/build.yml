@@ -1,0 +1,58 @@
+name: Karten bauen
+
+# Monthly: build all German states from the current Geofabrik extracts and publish them as a release.
+# The TempoWarner app reads releases/latest/download/index.json and downloads/updates regions itself.
+on:
+  schedule:
+    - cron: "0 2 3 * *"  # 3rd of every month, 02:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        region: [baden-wuerttemberg, bayern, berlin, brandenburg, bremen, hamburg, hessen,
+                 mecklenburg-vorpommern, niedersachsen, nordrhein-westfalen, rheinland-pfalz, saarland,
+                 sachsen, sachsen-anhalt, schleswig-holstein, thueringen]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python build_region.py --region europe/germany/${{ matrix.region }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.region }}
+          path: regions/${{ matrix.region }}.sqlite
+          retention-days: 3
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: regions
+          merge-multiple: true
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="karten-$(date -u +%Y-%m-%d)"
+          python make_index.py "$TAG" regions > regions/index.json
+          gh release create "$TAG" regions/*.sqlite regions/index.json --latest \
+            --title "Karten $(date -u +%d.%m.%Y)" \
+            --notes "Alle Bundesländer, gebaut aus Geofabrik-Auszügen. Kartendaten © OpenStreetMap-Mitwirkende, ODbL."
+          # Keep the last 3 releases
+          gh release list --limit 100 --json tagName --jq '.[3:][].tagName' | while read -r t; do
+            gh release delete "$t" --yes --cleanup-tag
+          done

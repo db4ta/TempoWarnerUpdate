@@ -1,0 +1,4 @@
+regions/
+.cache/
+__pycache__/
+*.osm.pbf
