@@ -1,4 +1,4 @@
-# TempoWarner-Karten
+# TempoWarnerUpdate
 
 Offline-Straßendaten mit Tempolimits für die TempoWarner-App, je Bundesland eine SQLite-Datei.
 Gebaut monatlich von GitHub Actions (`.github/workflows/build.yml`) aus den
