@@ -1,1 +1,2 @@
+# pyosmium (Straßen + Knotenkoordinaten aus .osm.pbf)
 osmium==4.3.2
