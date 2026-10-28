@@ -59,7 +59,9 @@ jobs:
           gh release create "$TAG" regions/*.sqlite regions/index.json --latest \
             --title "Karten $(date -u +%d.%m.%Y)" \
             --notes "Deutschland (alle Bundesländer), Österreich, Schweiz, gebaut aus Geofabrik-Auszügen. Kartendaten © OpenStreetMap-Mitwirkende, ODbL."
-          # Keep the last 3 releases
-          gh release list --limit 100 --json tagName --jq '.[3:][].tagName' | while read -r t; do
+          # Keep the last 3 map releases (only karten-*: the fixed release p4-firmware must survive)
+          gh release list --limit 100 --json tagName,createdAt \
+            --jq '[.[] | select(.tagName | startswith("karten-"))] | sort_by(.createdAt) | reverse | .[3:][].tagName' |
+          while read -r t; do
             gh release delete "$t" --yes --cleanup-tag
           done

@@ -12,3 +12,9 @@ Selbst bauen: `pip install -r requirements.txt && python build_region.py --regio
 [Open Database License (ODbL)](https://www.openstreetmap.org/copyright).
 Die Datenbanken sind abgeleitete Datenbanken im Sinne der ODbL und stehen ebenfalls unter der ODbL.
 Skripte: GPL-3.0.
+
+## Firmware für das P4-Display
+
+Das feste Release **`p4-firmware`** (nie „latest“) enthält `p4.json` und `tempowarner_p4.bin`; das Gerät prüft
+`releases/download/p4-firmware/p4.json` und installiert neuere Builds selbst (SHA-256, Rückfall auf die alte
+Version). Hochgeladen mit `tools/publish_p4.sh` aus dem TempoWarner-Repo. Der Kartenbau räumt nur `karten-*`-Releases auf.
